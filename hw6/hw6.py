@@ -23,14 +23,14 @@ X = np.column_stack((f1, f2))
 plt.scatter(f1, f2)
 
 k=2
-Center_1 = np.array([4,5])
-Center_2 = np.array([6,4])
-C = np.column_stack([Center_1, Center_2])
+C_1 = np.array([4,5])
+C_2 = np.array([6,4])
+C = np.column_stack([C_1, C_2])
 colors = ['r', 'g', 'b', 'y', 'c', 'm']
 
 #definitions
 
-def distance(a, b, ax=1, metric='e'):
+def dist(a, b, ax=1, metric='e'):
     switcher={
         'm':np.sum(np.abs(a-b), axis=ax),
         'e':np.sum((a-b)**2, axis=ax),
@@ -39,7 +39,7 @@ def distance(a, b, ax=1, metric='e'):
     }
     return switcher.get(metric)
 
-def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
+def k_means(X, Centroid=C, k=2, kmeans_metric='m'):
     
     max_iter = 100
     np.random.seed(89)
@@ -53,8 +53,8 @@ def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
     # Cluster Lables
     clusters = np.zeros(len(X))
     
-    # Error func. - Distance between new centroids and old centroids  
-    err = np.array(distance(Centroid, old_C, None, metric=kmeans_metric))
+    # Error func. - Dist between new centroids and old centroids  
+    err = np.array(dist(Centroid, old_C, None, metric=kmeans_metric))
 
     print(err)
     count = 1
@@ -66,7 +66,7 @@ def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
         
         # Assigning each value to its closest cluster
         for i in range(len(X)):
-            dist = distance(X[i], Centroid,1,kmeans_metric)
+            dist = dist(X[i], Centroid,1,kmeans_metric)
             clusters[i] = np.argmin([dist])
                          
         # Storing the old centroid values
@@ -80,7 +80,7 @@ def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
             Centroid[i] = np.mean(points, axis=0) 
         
         err_old = deepcopy(err)
-        err = distance(Centroid, old_C, None,kmeans_metric)
+        err = dist(Centroid, old_C, None,kmeans_metric)
         
         if count>0:
             if np.sum(err_old) == np.sum(err):
@@ -90,7 +90,7 @@ def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
     return clusters, count
 
 
-def visualise_football(C_x, C_y,metric):
+def football(C_x, C_y,metric):
     fig, ax = plt.subplots()
     
     C = np.column_stack((C_x,C_y))
@@ -111,7 +111,7 @@ def visualise_football(C_x, C_y,metric):
 def sse(X, clusters, C, metric='e'):
     err = 0
     for i, centroid in enumerate(C):
-        err += np.sum(distance(X[np.where(clusters==i)], centroid,ax=1,metric='e'))
+        err += np.sum(dist(X[np.where(clusters==i)], centroid,ax=1,metric='e'))
     
     return err
 
@@ -125,13 +125,13 @@ def predict(clusters, y, k=3):
         
     return clusters
 
-def visualise_iris():
+def iris():
     fig, ax = plt.subplots()
     for i in range(3):
         points = np.array([X[j] for j in range(len(X)) if clusters[j] == i])
         ax.scatter(points[:, 0], points[:, 1], c=colors[i])
         
-def print_accur():
+def print_accuracy():
     pred_val = predict(clusters, df['class'].values)
     accurcy = metrics.accuracy_score(df['class'].values, pred_val)
     print ("The original clusters  are ")
@@ -164,7 +164,7 @@ C_x = np.array([4,5])
 # Y coordinates of random centroids
 C_y = np.array([6,4])
 
-visualise_football(C_x, C_y,metric='e')
+football(C_x, C_y,metric='e')
 
 #Q2, part 3
 # Number of clusters
@@ -175,7 +175,7 @@ C_x = np.array([3,8])
 # Y coordinates of random centroids
 C_y = np.array([3,3])
 
-visualise_football(C_x, C_y,metric='m')
+football(C_x, C_y,metric='m')
 
 #Q2, part 4
 # Number of clusters
@@ -186,7 +186,7 @@ C_x = np.array([3,4])
 # Y coordinates of random centroids
 C_y = np.array([2,8])
 
-visualise_football(C_x, C_y,metric='m')
+football(C_x, C_y,metric='m')
 
 #Q2, part 2
 # Number of clusters
@@ -197,7 +197,7 @@ C_x = np.array([4,5])
 # Y coordinates of random centroids
 C_y = np.array([6,4])
 
-visualise_football(C_x, C_y,metric='m')
+football(C_x, C_y,metric='m')
 
 #Q3 IRIS Data sets
 
@@ -213,15 +213,15 @@ plt.scatter(X[:, 0], X[:, 1], c='black')
 
 clusters, count = kmeans(X, Centroid=None, k=3,kmeans_metric='e')
 print("number of count is ", str(int(count)))
-visualise_iris()
-print_accur()
+iris()
+print_accuracy()
 
 clusters,count = kmeans(X, Centroid=None, k=3,kmeans_metric='j')
 print("number of count is ", str(int(count)))
-visualise_iris()
-print_accur()
+iris()
+print_accuracy()
 
 clusters,count = kmeans(X, Centroid=None, k=3,kmeans_metric='c')
 print("number of count is ", str(int(count)))
-visualise_iris()
-print_accur()
+iris()
+print_accuracy()
