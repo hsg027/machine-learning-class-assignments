@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import normalize
+import scipy.spatial.distance as dista
 from sklearn import metrics
 import random
 import matplotlib.pyplot as plt
