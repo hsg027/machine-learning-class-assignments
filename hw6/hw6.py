@@ -39,6 +39,57 @@ def dist(a, b, ax=1, metric='e'):
     }
     return switcher.get(metric)
 
+#k-means definition for the case when SSE value increases in second iteration
+def kmeans(X, Centroid=C, k=2, kmeans_metric='m'):
+    
+    max_iter = 100
+    np.random.seed(89)
+    
+    if Centroid is None:
+        Centroid = X[np.random.choice(len(X), size=k, replace=False)]
+    
+    # Temprarily store Centroid values
+    old_C = np.ones(Centroid.shape)
+    
+    # Cluster Lables
+    clusters = np.zeros(len(X))
+    
+    # Error func. - Distance between new centroids and old centroids  
+    err = np.array(distance(Centroid, old_C, None, metric=kmeans_metric))
+
+    print(err)
+    count = 1
+    sse_prev = 0.5
+    sse_curr = 0
+    
+    while (err.any() != 0 and sse_prev>sse_curr and count<=max_iter):
+        
+        # Assigning each value to its closest cluster
+        for i in range(len(X)):
+            dist = distance(X[i], Centroid,1,kmeans_metric)
+            clusters[i] = np.argmin([dist])
+                         
+        # Storing the old centroid values
+        old_C = deepcopy(Centroid)
+        sse_curr = sse(X, clusters, Centroid)
+        print('Iteration: ' + str(count) + ' Current SSE: ' + str(sse_curr) + ' Previous SSE: ' + str(sse_prev))
+        
+        # Finding the new centroids by taking the average value
+        for i in range(k):
+            points = [X[j] for j in range(len(X)) if clusters[j] == i]
+            Centroid[i] = np.mean(points, axis=0) 
+        
+        err_old = deepcopy(err)
+        err = distance(Centroid, old_C, None,kmeans_metric)
+        
+        if count>0:
+            if np.sum(err_old) == np.sum(err):
+                break
+        count= count+1
+        sse_prev = sse_curr
+    return clusters, count
+
+#k-means definition for default cases when there is no change in centroid position and when max preset value (100) is complete
 def k_means(X, Centroid=C, k=2, kmeans_metric='m'):
     
     max_iter = 100
